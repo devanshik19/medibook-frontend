@@ -118,7 +118,7 @@ export default function CascadeGraph({ graphData, cascadeInvolvedDrugs, onNodeCl
           enableNodeDrag={draggable}
           enableZoomInteraction={true}
           enablePanInteraction={true}
-          onNodeDragEnd={(node: GraphNode) => {
+          onNodeDragEnd={(node: any) => {
             // Pin node after drag so it stays where placed
             node.fx = node.x;
             node.fy = node.y;
