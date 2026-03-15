@@ -1,5 +1,6 @@
 "use client";
 // app/components/CascadeGraph.tsx
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
