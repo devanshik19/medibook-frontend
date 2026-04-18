@@ -129,6 +129,8 @@ export default function CheckerPage() {
   const [age, setAge] = useState("");
   const [egfr, setEgfr] = useState("");
   const [allergies, setAllergies] = useState("");
+  const [conditions, setConditions] = useState<string[]>([]);
+  const [showAdvanced, setShowAdvanced] = useState(false);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [aiReport, setAiReport] = useState("");
@@ -358,6 +360,7 @@ export default function CheckerPage() {
       age: age ? parseInt(age) : null,
       egfr: egfr ? parseFloat(egfr) : null,
       allergies: allergies ? allergies.split(",").map(s => s.trim()) : [],
+      conditions,
       language: lang,
     };
 
@@ -650,19 +653,66 @@ export default function CheckerPage() {
             {/* Patient context */}
             <div style={{ background: "#fff", borderRadius: 14, padding: "18px", border: `1px solid rgba(46,125,138,0.1)` }}>
               <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: 16, color: C.text, marginBottom: 14 }}>{t("patientContext")}</h2>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
+
+              {/* Age + Allergies */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 12 }}>
                 <div>
                   <label style={{ fontSize: 11, fontWeight: 600, color: C.teal, display: "block", marginBottom: 5, letterSpacing: "0.05em" }}>{t("age").toUpperCase()}</label>
                   <input className="inp" placeholder={t("agePlaceholder")} value={age} onChange={e => setAge(e.target.value)} />
                 </div>
                 <div>
-                  <label style={{ fontSize: 11, fontWeight: 600, color: C.teal, display: "block", marginBottom: 5, letterSpacing: "0.05em" }}>{t("egfr").toUpperCase()}</label>
-                  <input className="inp" placeholder={t("egfrPlaceholder")} value={egfr} onChange={e => setEgfr(e.target.value)} />
+                  <label style={{ fontSize: 11, fontWeight: 600, color: C.teal, display: "block", marginBottom: 5, letterSpacing: "0.05em" }}>{t("allergies").toUpperCase()}</label>
+                  <input className="inp" placeholder={t("allergiesPlaceholder")} value={allergies} onChange={e => setAllergies(e.target.value)} />
                 </div>
               </div>
+
+              {/* Conditions checklist */}
+              <div style={{ marginBottom: 12 }}>
+                <label style={{ fontSize: 11, fontWeight: 600, color: C.teal, display: "block", marginBottom: 8, letterSpacing: "0.05em" }}>ANY OF THESE CONDITIONS?</label>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
+                  {[
+                    { label: "Kidney disease",  value: "kidney disease" },
+                    { label: "Liver disease",   value: "liver disease" },
+                    { label: "Heart failure",   value: "heart failure" },
+                    { label: "Diabetes",        value: "diabetes" },
+                    { label: "Hypertension",    value: "hypertension" },
+                    { label: "Pregnant",        value: "pregnancy" },
+                    { label: "Breastfeeding",   value: "breastfeeding" },
+                    { label: "Smoker",          value: "smoking" },
+                    { label: "Drinks alcohol",  value: "alcohol use" },
+                  ].map(({ label, value }) => {
+                    const selected = conditions.includes(value);
+                    return (
+                      <button key={value} type="button"
+                        onClick={() => setConditions(prev => selected ? prev.filter(c => c !== value) : [...prev, value])}
+                        style={{
+                          padding: "5px 12px", borderRadius: 20, fontSize: 12, cursor: "pointer",
+                          fontFamily: "'DM Sans', sans-serif", transition: "all 0.15s",
+                          background: selected ? C.teal : "rgba(46,125,138,0.06)",
+                          color: selected ? "#fff" : C.teal,
+                          border: selected ? `1.5px solid ${C.teal}` : "1.5px solid rgba(46,125,138,0.2)",
+                          fontWeight: selected ? 600 : 400,
+                        }}>
+                        {selected ? "✓ " : ""}{label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Advanced eGFR */}
               <div>
-                <label style={{ fontSize: 11, fontWeight: 600, color: C.teal, display: "block", marginBottom: 5, letterSpacing: "0.05em" }}>{t("allergies").toUpperCase()}</label>
-                <input className="inp" placeholder={t("allergiesPlaceholder")} value={allergies} onChange={e => setAllergies(e.target.value)} />
+                <button type="button" onClick={() => setShowAdvanced(p => !p)}
+                  style={{ fontSize: 11, color: C.textLight, background: "transparent", border: "none", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", padding: 0, display: "flex", alignItems: "center", gap: 5 }}>
+                  <span style={{ fontSize: 9, display: "inline-block", transform: showAdvanced ? "rotate(90deg)" : "rotate(0deg)", transition: "transform 0.2s" }}>▶</span>
+                  Advanced — eGFR (optional, for clinicians)
+                </button>
+                {showAdvanced && (
+                  <div style={{ marginTop: 8 }}>
+                    <label style={{ fontSize: 11, fontWeight: 600, color: C.teal, display: "block", marginBottom: 5, letterSpacing: "0.05em" }}>EGFR (mL/min/1.73m²)</label>
+                    <input className="inp" placeholder={t("egfrPlaceholder")} value={egfr} onChange={e => setEgfr(e.target.value)} style={{ maxWidth: 150 }} />
+                  </div>
+                )}
               </div>
             </div>
 
